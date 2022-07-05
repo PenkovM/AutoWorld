@@ -4,10 +4,14 @@ namespace AutoWorld.Models
 {
     public class Ad
     {
-       public int Id { get; set; }
-       public Car Car { get; set; }
-       public string ImageUrl { get; set; }
-       public string AdditionalInfo { get; set; }
-       public Seller Seller { get; set; }
+        public int Id { get; set; }
+        [Required]
+        public Car Car { get; set; }
+        [Required]
+        public string ImageUrl { get; set; }
+        [StringLength(2000)]
+        public string AdditionalInfo { get; set; }
+        [Required]
+        public Seller Seller { get; set; }
     }
 }
