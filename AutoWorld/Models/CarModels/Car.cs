@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AutoWorld.Models.CarModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace AutoWorld.Models
 {
@@ -10,7 +11,9 @@ namespace AutoWorld.Models
         [Required]
         public Model Model { get; set; }
         [Required]
-        public DateTime ManufacturedDate { get; set; }
+        public int ManufacturedYear { get; set; }
+        [Required]
+        public ManufacturedMonth ManufacturedMonth { get; set; }
         [Required]
         public int Mileage { get; set; }
         [Required]
