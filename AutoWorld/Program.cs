@@ -15,9 +15,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSwaggerGen(options =>
-options.SwaggerDoc("v1", new OpenApiInfo { Title = "AutoWorld API", Version = "v1" })
-);
+//builder.Services.AddSwaggerGen(options =>
+//options.SwaggerDoc("v1", new OpenApiInfo { Title = "AutoWorld API", Version = "v1" })
+//);
 
 var app = builder.Build();
 
@@ -36,10 +36,10 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-options.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoWorld API v1")
-);
+//app.UseSwagger();
+//app.UseSwaggerUI(options =>
+//options.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoWorld API v1")
+//);
 
 
 app.UseRouting();
@@ -47,15 +47,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapGet("/", context =>
-    {
-        context.Response.Redirect("/swagger/");
-        return Task.CompletedTask;
-    });
-    endpoints.MapControllers();
-});
+//app.UseEndpoints(endpoints =>
+//{
+//    endpoints.MapGet("/", context =>
+ //   {
+   //     context.Response.Redirect("/swagger/");
+    //    return Task.CompletedTask;
+    //});
+    //endpoints.MapControllers();
+//});
 
 app.MapControllerRoute(
     name: "default",

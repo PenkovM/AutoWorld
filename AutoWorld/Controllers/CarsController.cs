@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AutoWorld.Data;
 using AutoWorld.Models;
 
 namespace AutoWorld.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CarsController : ControllerBase
+    public class CarsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -21,104 +19,145 @@ namespace AutoWorld.Controllers
             _context = context;
         }
 
-        // GET: api/Cars
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Car>>> GetCars()
+        // GET: Cars
+        public async Task<IActionResult> Index()
         {
-          if (_context.Cars == null)
-          {
-              return NotFound();
-          }
-            return await _context.Cars.ToListAsync();
+              return _context.Cars != null ? 
+                          View(await _context.Cars.ToListAsync()) :
+                          Problem("Entity set 'ApplicationDbContext.Cars'  is null.");
         }
 
-        // GET: api/Cars/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Car>> GetCar(int id)
+        // GET: Cars/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-          if (_context.Cars == null)
-          {
-              return NotFound();
-          }
-            var car = await _context.Cars.FindAsync(id);
+            if (id == null || _context.Cars == null)
+            {
+                return NotFound();
+            }
 
+            var car = await _context.Cars
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (car == null)
             {
                 return NotFound();
             }
 
-            return car;
+            return View(car);
         }
 
-        // PUT: api/Cars/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCar(int id, Car car)
+        // GET: Cars/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Cars/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,ManufacturedYear,ManufacturedMonth,Mileage,Colour,EngineType,TransmissionType,Power,EcoCategory,Category")] Car car)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(car);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(car);
+        }
+
+        // GET: Cars/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null || _context.Cars == null)
+            {
+                return NotFound();
+            }
+
+            var car = await _context.Cars.FindAsync(id);
+            if (car == null)
+            {
+                return NotFound();
+            }
+            return View(car);
+        }
+
+        // POST: Cars/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ManufacturedYear,ManufacturedMonth,Mileage,Colour,EngineType,TransmissionType,Power,EcoCategory,Category")] Car car)
         {
             if (id != car.Id)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(car).State = EntityState.Modified;
-
-            try
+            if (ModelState.IsValid)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CarExists(id))
+                try
                 {
-                    return NotFound();
+                    _context.Update(car);
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!CarExists(car.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return RedirectToAction(nameof(Index));
             }
-
-            return NoContent();
+            return View(car);
         }
 
-        // POST: api/Cars
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Car>> PostCar(Car car)
+        // GET: Cars/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-          if (_context.Cars == null)
-          {
-              return Problem("Entity set 'ApplicationDbContext.Cars'  is null.");
-          }
-            _context.Cars.Add(car);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCar", new { id = car.Id }, car);
-        }
-
-        // DELETE: api/Cars/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCar(int id)
-        {
-            if (_context.Cars == null)
+            if (id == null || _context.Cars == null)
             {
                 return NotFound();
             }
-            var car = await _context.Cars.FindAsync(id);
+
+            var car = await _context.Cars
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (car == null)
             {
                 return NotFound();
             }
 
-            _context.Cars.Remove(car);
-            await _context.SaveChangesAsync();
+            return View(car);
+        }
 
-            return NoContent();
+        // POST: Cars/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (_context.Cars == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Cars'  is null.");
+            }
+            var car = await _context.Cars.FindAsync(id);
+            if (car != null)
+            {
+                _context.Cars.Remove(car);
+            }
+            
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         private bool CarExists(int id)
         {
-            return (_context.Cars?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.Cars?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
